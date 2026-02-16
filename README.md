@@ -108,10 +108,6 @@ README.md         - This file
 
 2. **JWKS Endpoint**: When you request `/.well-known/jwks.json`, it returns only the public parts of non-expired keys
 
-3. **Token Issuance**: When you POST to `/auth`, the server:
-   - Creates a JWT with standard claims (subject, issued-at, expiration, issuer, audience)
-   - Signs it with the active key (or expired key if requested)
-   - Returns the signed token
 
 ## Key Features
 
