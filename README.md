@@ -51,25 +51,6 @@ Returns the public keys in JWKS format (only non-expired keys).
   ]
 }
 ```
-
-### POST `/auth`
-Issues a signed JWT token.
-
-**Query Parameters:**
-- `expired` (optional): If present, returns a JWT signed with an expired key
-
-**Example request:**
-```bash
-curl -X POST http://localhost:8080/auth
-```
-
-**Example response:**
-```json
-{
-  "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImFiYzEyM2RlZjQ1Ni4uLiJ9.eyJzdWIiOiJmYWtlLXVzZXIiLCJpYXQiOjE2MjM4MjU2MDAsImV4cCI6MTYyMzgyOTIwMCwiaXNzIjoiandrcy1zZXJ2ZXIiLCJhdWQiOiJ0ZXN0LWNsaWVudCJ9.signature..."
-}
-```
-
 ### GET `/`
 Simple health check endpoint.
 
