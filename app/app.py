@@ -10,17 +10,11 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-# -----------------------
 # App setup
-# -----------------------
 
 app = FastAPI()
 
-# -----------------------
 # Key management
-# -----------------------
-
-
 class KeyPair:
     def __init__(self, kid: str, private_key: rsa.RSAPrivateKey, expires_at: datetime) -> None:
         self.kid = kid
@@ -42,9 +36,7 @@ _now = datetime.now(timezone.utc)
 ACTIVE_KEY = generate_key(expires_at=_now + timedelta(hours=1))
 EXPIRED_KEY = generate_key(expires_at=_now - timedelta(hours=1))
 
-# -----------------------
 # JWKS helpers
-# -----------------------
 
 
 def _b64url_uint(n: int) -> str:
@@ -64,9 +56,7 @@ def rsa_public_key_to_jwk(pub: rsa.RSAPublicKey, kid: str) -> dict[str, Any]:
     }
 
 
-# -----------------------
 # Routes (RESTful API)
-# -----------------------
 
 @app.api_route("/.well-known/jwks.json", methods=["GET", "POST", "HEAD", "OPTIONS"])
 def jwks() -> dict[str, Any]:
