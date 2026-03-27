@@ -20,6 +20,8 @@ This server provides two main features:
 1. Clone or download this project
 2. Install dependencies:
    ```bash
+   python -m venv .venv
+   source .venv/bin/activate
    pip install -r requirements.txt
    ```
 
@@ -30,6 +32,10 @@ uvicorn app.app:app --host 0.0.0.0 --port 8080
 ```
 
 The server will start on `http://localhost:8080`
+
+### Data storage
+- Uses a local SQLite DB at `totally_not_my_privateKeys.db` in the project root.
+- On startup the DB is created (if missing) and seeded with two keys: one valid (expires in ~1 hour) and one expired (for negative testing).
 
 ## API Endpoints
 
@@ -53,6 +59,12 @@ Returns the public keys in JWKS format (only non-expired keys).
 ```
 ### GET `/`
 Simple health check endpoint.
+
+### POST `/auth`
+Issues a JWT signed with the first non-expired key. Response: `{"token": "<jwt>"}`.
+
+### POST `/auth?expired=true`
+Issues a JWT signed with the most recent expired key (useful for testing exp handling).
 
 ### GET/POST `/connect`
 Service discovery endpoint that returns information about available endpoints and service status.
@@ -83,7 +95,8 @@ Health check endpoint for monitoring service availability.
 ## Running Tests
 
 ```bash
-pytest tests/ -v --cov=app --cov-report=term-missing
+.venv/bin/python -m coverage run -m pytest --disable-warnings -q
+.venv/bin/python -m coverage report -m
 ```
 
 This runs the test suite and shows code coverage statistics.
@@ -116,7 +129,7 @@ README.md         - This file
 - JWKS format compliance
 - JWT signing with RS256 algorithm
 - Support for expired token testing
-- Full test coverage
+- Full test coverage (tests use isolated temp DBs; prod DB untouched)
 
 ## Dependencies
 

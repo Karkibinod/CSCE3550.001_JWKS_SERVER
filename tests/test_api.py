@@ -6,6 +6,7 @@ import jwt
 import pytest
 
 from app.app import app
+import app.app as app_module
 
 
 def b64url_decode(s: str) -> bytes:
@@ -22,6 +23,13 @@ def jwk_to_public_key(jwk: dict):
 def make_client() -> httpx.AsyncClient:
     transport = httpx.ASGITransport(app=app)
     return httpx.AsyncClient(transport=transport, base_url="http://test")
+
+
+def _set_temp_db(monkeypatch, tmp_path):
+    """Point the app at an isolated temp database for a test."""
+    temp_db = tmp_path / "test.db"
+    monkeypatch.setattr(app_module, "DB_FILE", str(temp_db))
+    return temp_db
 
 
 @pytest.mark.anyio
@@ -99,3 +107,55 @@ async def test_health_post():
         assert r.status_code == 200
         data = r.json()
         assert data["status"] == "ok"
+
+
+def test_startup_event_seeds_keys(monkeypatch, tmp_path):
+    _set_temp_db(monkeypatch, tmp_path)
+    app_module.startup_event()
+
+    conn = app_module.get_db_connection()
+    try:
+        count = conn.execute("SELECT COUNT(*) FROM keys").fetchone()[0]
+    finally:
+        conn.close()
+
+    assert count == 2
+
+
+def test_seed_keys_idempotent(monkeypatch, tmp_path):
+    _set_temp_db(monkeypatch, tmp_path)
+    app_module.init_db()
+    app_module.seed_keys_if_needed()
+    app_module.seed_keys_if_needed()  # second call should not add more rows
+
+    conn = app_module.get_db_connection()
+    try:
+        count = conn.execute("SELECT COUNT(*) FROM keys").fetchone()[0]
+    finally:
+        conn.close()
+
+    assert count == 2
+
+
+@pytest.mark.anyio
+async def test_auth_returns_404_when_no_keys(monkeypatch, tmp_path):
+    _set_temp_db(monkeypatch, tmp_path)
+    app_module.init_db()  # don't seed keys
+
+    async with make_client() as client:
+        r = await client.post("/auth")
+        assert r.status_code == 404
+        assert r.json()["error"] == "No suitable key found"
+
+
+@pytest.mark.anyio
+async def test_root_endpoint(monkeypatch, tmp_path):
+    # Use isolated DB to avoid depending on local state
+    _set_temp_db(monkeypatch, tmp_path)
+    app_module.startup_event()
+
+    async with make_client() as client:
+        r = await client.get("/")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["service"] == "jwks-server"
