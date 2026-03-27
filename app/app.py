@@ -58,7 +58,7 @@ def rsa_public_key_to_jwk(pub: rsa.RSAPublicKey, kid: str) -> dict[str, Any]:
 
 # Routes (RESTful API)
 
-@app.api_route("/.well-known/jwks.json", methods=["GET", "POST", "HEAD", "OPTIONS"])
+@app.api_route("/.well-known/jwks.json", methods=["GET", "POST"])
 def jwks() -> dict[str, Any]:
     """
     Return JWKS containing ONLY unexpired public keys.
