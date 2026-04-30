@@ -5,6 +5,14 @@ __pycache__/
 .coverage
 coverage.png
 htmlcov/
+.env
+*.db
+totally_not_my_privateKeys.db
+__pycache__/
+.pytest_cache/
+.venv/
+.coverage
+htmlcov/
 
 # Virtual environments
 .venv/
@@ -20,6 +28,3 @@ totally_not_my_privateKeys.db
 # OS
 .DS_Store
 
-# Project artifacts
-*.png
-ss/
