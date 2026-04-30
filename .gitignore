@@ -23,7 +23,4 @@ totally_not_my_privateKeys.db
 # OS
 .DS_Store
 
-# Artifacts
-*.png
-ss/
 
