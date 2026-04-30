@@ -1,41 +1,35 @@
-# JWKS Server
+# JWKS Server (Project 2)
 
-A simple JSON Web Key Set (JWKS) server that generates RSA key pairs and issues digitally signed JWTs (JSON Web Tokens).
+SQLite-backed JWKS/JWT service with encrypted key storage.
 
-## What This Does
+## Features
 
-This server provides two main features:
+- RSA private keys persisted in SQLite with AES-256 encryption
+- Key expiry support via `exp` unix timestamp
+- Unique `kid` per key (SQLite `AUTOINCREMENT`)
+- `POST /auth` signs JWT with valid (non-expired) key
+- `POST /auth?expired=true` signs JWT with expired key
+- `GET/POST /.well-known/jwks.json` returns only unexpired public keys in JWKS format
+- Parameterized SQL queries to prevent injection attacks
 
-1. **Key Management**: Generates RSA cryptographic key pairs, each with a unique ID and expiration time
-2. **JWT Issuance**: Creates and signs JSON Web Tokens that can be verified using the public keys
-
-## Quick Start
-
-### Prerequisites
-- Python 3.8+
-- pip (Python package manager)
-
-### Installation
-
-1. Clone or download this project
-2. Install dependencies:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-### Running the Server
+## Setup
 
 ```bash
-uvicorn app.app:app --host 0.0.0.0 --port 8080
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-The server will start on `http://localhost:8080`
+## Running
 
-### Data storage
-- Uses a local SQLite DB at `totally_not_my_privateKeys.db` in the project root.
-- On startup the DB is created (if missing) and seeded with two keys: one valid (expires in ~1 hour) and one expired (for negative testing).
+```bash
+export NOT_MY_KEY="your-secret-key-here"
+uvicorn app.app:app --host 127.0.0.1 --port 8080
+```
+
+**Required**: Set `NOT_MY_KEY` environment variable before running (used for AES-256 encryption of stored keys).
+
+Database (`totally_not_my_privateKeys.db`) is created automatically on startup.
 
 ## API Endpoints
 

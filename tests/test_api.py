@@ -1,3 +1,6 @@
+import os
+os.environ.setdefault("NOT_MY_KEY", "test-secret-key-for-pytest")
+
 import base64
 import json
 
@@ -7,6 +10,11 @@ import pytest
 
 from app.app import app
 import app.app as app_module
+
+
+@pytest.fixture
+def anyio_backend():
+    return "asyncio"
 
 
 def b64url_decode(s: str) -> bytes:
