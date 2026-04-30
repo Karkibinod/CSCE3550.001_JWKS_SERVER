@@ -3,15 +3,6 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .coverage
-coverage.png
-htmlcov/
-.env
-*.db
-totally_not_my_privateKeys.db
-__pycache__/
-.pytest_cache/
-.venv/
-.coverage
 htmlcov/
 
 # Virtual environments
@@ -19,7 +10,11 @@ htmlcov/
 venv/
 
 # Database
+*.db
 totally_not_my_privateKeys.db
+
+# Environment
+.env
 
 # IDE
 .vscode/
@@ -27,4 +22,8 @@ totally_not_my_privateKeys.db
 
 # OS
 .DS_Store
+
+# Artifacts
+*.png
+ss/
 
