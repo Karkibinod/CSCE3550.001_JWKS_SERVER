@@ -15,8 +15,24 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from argon2 import PasswordHasher
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import JSONResponse
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 app = FastAPI()
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(
+    RateLimitExceeded,
+    lambda request, exc: JSONResponse(
+        {"detail": "Too Many Requests"},
+        status_code=429
+    )
+)
+app.add_middleware(SlowAPIMiddleware)
+
 hasher = PasswordHasher()
 RAW_AES_KEY = os.environ.get("NOT_MY_KEY")
 
@@ -180,6 +196,7 @@ def jwks() -> dict[str, Any]:
 
 
 @app.post("/auth")
+@limiter.limit("10/second")
 async def auth(request: Request) -> JSONResponse:
     now = int(datetime.now(timezone.utc).timestamp())
     use_expired = "expired" in request.query_params
