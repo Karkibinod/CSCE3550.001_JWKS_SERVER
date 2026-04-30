@@ -4,8 +4,8 @@ SQLite-backed JWKS/JWT authentication service with encrypted private key storage
 
 ## Screenshots
 
-- Gradebot result: `ss/Project 3 SS /Gradebot3.png`
-- Test coverage: `ss/Project 3 SS /Coverage3.png`
+- Gradebot result: [`Gradebot3.png`](ss/Project%203%20SS/Gradebot3.png)
+- Test coverage: [`Coverage3.png`](ss/Project%203%20SS/Coverage3.png)
 
 ## Features
 
