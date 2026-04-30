@@ -16,15 +16,6 @@ from argon2 import PasswordHasher
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 
-app = FastAPI()
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-DB_FILE = str(BASE_DIR / "totally_not_my_privateKeys.db")
-
-
-
-# datbase connection helper 
-def ge
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -251,9 +242,13 @@ async def auth(request: Request) -> JSONResponse:
         headers={"kid": str(row["kid"])},
     )
 
+    cursor.execute("SELECT id FROM users ORDER BY id ASC LIMIT 1")
+    user_row = cursor.fetchone()
+    user_id = user_row["id"] if user_row else None
+
     cursor.execute(
         "INSERT INTO auth_logs (request_ip, user_id) VALUES (?, ?)",
-        (request_ip, None)
+        (request_ip, user_id)
     )
 
     conn.commit()
