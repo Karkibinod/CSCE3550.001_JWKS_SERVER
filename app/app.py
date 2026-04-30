@@ -40,11 +40,13 @@ RAW_AES_KEY = os.environ.get("NOT_MY_KEY")
 if not RAW_AES_KEY:
     raise RuntimeError("Environment variable NOT_MY_KEY is required. Do not commit secrets.")
 
+# Pad/trim to 32 bytes for AES-256 key length
 AES_KEY = RAW_AES_KEY.encode("utf-8").ljust(32, b"\0")[:32]
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_FILE = str(BASE_DIR / "totally_not_my_privateKeys.db")
 
 def encrypt_data(data: bytes) -> bytes:
+    # Generate a random IV per encryption operation
     iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(AES_KEY), modes.CBC(iv))
     encryptor = cipher.encryptor()
@@ -121,6 +123,7 @@ def generate_key(expires_at: datetime) -> rsa.RSAPrivateKey:
 
 #store in database
 def store_key(private_key: rsa.RSAPrivateKey, expires_at: datetime) -> None:
+    # Encrypt the private key before storing it at rest
     pem  = private_key_to_pem(private_key)
     encryoted_pem = encrypt_data(pem)
     exp_timestamp = int(expires_at.timestamp())
@@ -187,6 +190,7 @@ def jwks() -> dict[str, Any]:
 
 
     for row in rows:
+        # Decrypt stored key and expose only the public portion
         decrypted_pem = decrypt_data(row["key"]) # Decrypt here
         private_key = pem_to_private_key(decrypted_pem)
         public_key = private_key.public_key()
@@ -246,6 +250,7 @@ async def auth(request: Request) -> JSONResponse:
     user_row = cursor.fetchone()
     user_id = user_row["id"] if user_row else None
 
+    # Log each successful auth request for auditing
     cursor.execute(
         "INSERT INTO auth_logs (request_ip, user_id) VALUES (?, ?)",
         (request_ip, user_id)

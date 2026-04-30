@@ -2,6 +2,11 @@
 
 SQLite-backed JWKS/JWT authentication service with encrypted private key storage, user registration, and request logging.
 
+## Screenshots
+
+- Gradebot result: `ss/Project 3 SS /Gradebot3.png`
+- Test coverage: `ss/Project 3 SS /Coverage3.png`
+
 ## Features
 
 - **AES-256 Encryption**: Private keys encrypted in the database using a secure encryption key
